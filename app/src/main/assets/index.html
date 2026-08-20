@@ -2,93 +2,283 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Cyber Words Trainer – NICCS</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Cyber Words Trainer</title>
 <style>
-:root{--bg:#0f1020;--card:#191b34;--accent:#7c5cff;--good:#1f9d62;--bad:#d9534f;--text:#f7f7fb;--muted:#b9bad0;--line:#2d3159}
+:root{
+  --bg:#0d1022;--panel:#171a33;--card:#11142b;--line:#30355e;--text:#f6f7fb;--muted:#b8bad0;
+  --accent:#7657f3;--good:#159a62;--bad:#d94e49;--answer:#f7f7fb;--answerText:#28253a;
+  --safeTop:0px;--safeBottom:0px;--h:100dvh;
+}
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,"Noto Sans Hebrew",sans-serif;background:linear-gradient(180deg,#0d1022,#17122c 65%,#0f1020);color:var(--text);min-height:100vh}
-.wrap{max-width:720px;margin:auto;padding:18px 14px 42px}
-.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
-.brand{font-size:21px;font-weight:800}.badge{background:#26294a;border:1px solid #3c4171;padding:8px 11px;border-radius:999px;color:#d9dbff;font-size:13px}
-.panel{background:rgba(25,27,52,.96);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 18px 50px #0005}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
-.stat{background:#11142b;border:1px solid #292d52;border-radius:14px;padding:10px 6px;text-align:center}.stat b{display:block;font-size:18px}.stat span{font-size:11px;color:var(--muted)}
-.progress{height:9px;background:#0c0f24;border-radius:99px;overflow:hidden;margin:8px 0 22px}.progress>div{height:100%;background:linear-gradient(90deg,#6b5cff,#aa70ff);width:0}
-.counter{text-align:center;color:#bfc2e6;font-size:13px}.word-row{display:flex;align-items:center;justify-content:center;gap:12px;margin:10px 0 18px}
-.word{font-size:38px;font-weight:900;direction:ltr;text-align:center;word-break:break-word}.icon-btn{border:1px solid #454a7c;background:#242844;color:white;border-radius:13px;width:44px;height:44px;font-size:20px;cursor:pointer}
-.answers{display:grid;gap:11px}.answer{width:100%;padding:16px 13px;border-radius:16px;border:1px solid #3b406e;background:#f8f8fb;color:#262138;font-size:18px;font-weight:700;cursor:pointer;text-align:right;transition:.15s}
-.answer:hover{transform:translateY(-1px)}.answer.good{background:#dff7eb;border-color:#4fbd84;color:#10663e}.answer.bad{background:#ffe5e3;border-color:#e67570;color:#8b2724}.answer.dim{opacity:.55}
-.feedback{min-height:44px;margin-top:12px;font-size:15px;font-weight:700;text-align:center}.actions{display:flex;gap:9px;margin-top:10px;flex-wrap:wrap}
-.btn{flex:1;min-width:120px;padding:12px;border-radius:14px;border:1px solid #454a7c;background:#242844;color:white;font-weight:700;cursor:pointer}.btn.primary{background:#6f55e8;border-color:#806af0}
-.settings{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:9px}select,label.switch{width:100%;background:#11142b;border:1px solid #30355e;color:white;border-radius:13px;padding:11px;font-size:14px}
-label.switch{display:flex;align-items:center;justify-content:space-between;gap:8px}.small{font-size:12px;color:var(--muted);line-height:1.5;margin-top:15px}
-.modal{position:fixed;inset:0;background:#000a;display:none;align-items:flex-end;justify-content:center;padding:14px;z-index:10}.modal.open{display:flex}
-.sheet{width:min(720px,100%);max-height:82vh;overflow:auto;background:#171a33;border:1px solid #3b406e;border-radius:22px;padding:17px}.sheet h2{margin-top:0}
-.list-item{display:flex;justify-content:space-between;gap:12px;padding:11px 3px;border-bottom:1px solid #2a2e53}.en{direction:ltr;text-align:left;font-weight:800}.he{text-align:right;color:#d8daf3}
-.search{width:100%;padding:12px;border-radius:12px;border:1px solid #3a3f6d;background:#0f1229;color:white;font-size:16px;margin-bottom:10px}
-@media(max-width:520px){.wrap{padding:12px 10px 30px}.panel{padding:14px}.stats{grid-template-columns:repeat(2,1fr)}.word{font-size:32px}.answer{font-size:17px;padding:15px 12px}.settings{grid-template-columns:1fr}}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:Arial,"Noto Sans Hebrew",sans-serif;color:var(--text)}
+body{min-height:100dvh}
+button,select{font:inherit}
+.app{
+  height:100%; width:100%; overflow:hidden;
+  padding:clamp(6px,1.3vh,12px) clamp(8px,2vw,16px) clamp(6px,1.2vh,12px);
+  display:flex; flex-direction:column; gap:clamp(6px,1vh,10px);
+  background:linear-gradient(180deg,#0b0e20,#111128 55%,#0c0e1e);
+}
+.header{
+  min-height:clamp(44px,6.2vh,58px);
+  display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:8px;
+  flex:0 0 auto;
+}
+.brand{grid-column:2;font-weight:900;font-size:clamp(19px,5vw,29px);white-space:nowrap;text-align:center;line-height:1}
+.badge{justify-self:start;grid-column:3;background:#25294c;border:1px solid #414777;border-radius:999px;padding:clamp(5px,0.9vh,8px) clamp(8px,2.5vw,13px);font-size:clamp(10px,2.6vw,14px);white-space:nowrap}
+.header-spacer{grid-column:1}
+.screen{display:none;min-height:0;flex:1}
+.screen.active{display:flex}
+.home{flex-direction:column;min-height:0}
+.home-card{background:rgba(23,26,51,.96);border:1px solid var(--line);border-radius:22px;padding:clamp(12px,2vh,20px);display:flex;flex-direction:column;min-height:0;flex:1}
+.home h1{font-size:clamp(22px,6vw,34px);margin:0 0 6px}
+.home p{margin:0 0 12px;color:var(--muted);font-size:clamp(13px,3.5vw,17px);line-height:1.4}
+.categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,1.2vh,12px);overflow:auto;padding-bottom:4px}
+.cat{
+  min-height:clamp(76px,11vh,105px);background:#11142b;border:1px solid #343965;border-radius:18px;color:white;
+  padding:12px;text-align:right;font-weight:800;font-size:clamp(14px,3.7vw,18px);display:flex;flex-direction:column;justify-content:space-between
+}
+.cat small{color:var(--muted);font-weight:500;font-size:clamp(10px,2.6vw,12px)}
+.cat.all{grid-column:1/-1;background:linear-gradient(135deg,#4f3db2,#7657f3)}
+.quiz{flex-direction:column;min-height:0}
+.quiz-panel{
+  flex:1;min-height:0;background:rgba(23,26,51,.97);border:1px solid var(--line);border-radius:22px;
+  padding:clamp(8px,1.4vh,14px);display:grid;
+  grid-template-rows:auto auto auto minmax(0,1fr) auto;gap:clamp(5px,0.85vh,9px);
+}
+.quiz-top{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px}
+.quiz-title{font-size:clamp(12px,3vw,15px);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exit{border:1px solid #414777;background:#232744;color:white;border-radius:10px;padding:7px 10px;font-size:12px}
+.progress-wrap{display:flex;align-items:center;gap:8px}
+.progress-text{font-size:clamp(11px,2.8vw,13px);color:var(--muted);white-space:nowrap}
+.progress{height:7px;background:#0c0f24;border-radius:999px;overflow:hidden;flex:1}
+.progress>div{height:100%;background:linear-gradient(90deg,#7657f3,#a06cff);width:0}
+.word-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;direction:ltr;min-height:clamp(52px,8.2vh,78px)}
+.word{font-size:clamp(25px,7.2vw,43px);font-weight:900;line-height:1.02;text-align:center;word-break:break-word}
+.speak{width:clamp(44px,11vw,58px);height:clamp(44px,11vw,58px);border-radius:15px;border:1px solid #454b7d;background:#252946;color:white;font-size:clamp(18px,5vw,25px)}
+.answers{min-height:0;display:grid;grid-template-rows:repeat(4,minmax(0,1fr));gap:clamp(7px,1vh,10px)}
+.answer{
+  min-height:0;width:100%;border-radius:clamp(13px,2vh,18px);border:1px solid #d9d9e2;background:var(--answer);color:var(--answerText);
+  padding:clamp(8px,1.3vh,14px) clamp(10px,2.5vw,16px);font-size:clamp(15px,4.2vw,21px);font-weight:800;text-align:right;line-height:1.15;
+  display:flex;align-items:center;justify-content:flex-start;transition:.12s
+}
+.answer.correct{background:#dff8ea;border-color:#37b87a;color:#0f6e43}
+.answer.wrong{background:#ffe2df;border-color:#e06f69;color:#8a2924}
+.answer.dim{opacity:.58}
+.quiz-bottom{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.feedback{
+  min-height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:6px 10px;font-size:clamp(13px,3.5vw,16px);font-weight:900;
+  background:#10142a;color:var(--muted)
+}
+.feedback.good{background:#123d2c;color:#91f0c1}.feedback.bad{background:#4a1f22;color:#ffb2ad}
+.hard{border:1px solid #414777;background:#232744;color:white;border-radius:12px;padding:8px 11px;font-size:clamp(12px,3vw,14px);white-space:nowrap}
+.result{flex-direction:column;min-height:0}
+.result-card{flex:1;background:rgba(23,26,51,.97);border:1px solid var(--line);border-radius:22px;padding:clamp(14px,2vh,22px);display:flex;flex-direction:column;min-height:0}
+.score{font-size:clamp(34px,12vw,64px);font-weight:900;text-align:center;margin:3px 0}
+.result-sub{text-align:center;color:var(--muted);font-size:clamp(14px,3.8vw,18px);margin-bottom:10px}
+.review{flex:1;min-height:0;overflow:auto;border-top:1px solid #2d3159;border-bottom:1px solid #2d3159;padding:7px 0}
+.review-item{padding:8px 2px;border-bottom:1px solid #262b50;font-size:clamp(12px,3.3vw,15px)}
+.review-item b{direction:ltr;display:inline-block}
+.result-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.primary,.secondary{border-radius:14px;padding:12px 10px;font-weight:800}
+.primary{background:#7657f3;color:white;border:0}.secondary{background:#232744;color:white;border:1px solid #414777}
+.toast{
+ position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);z-index:30;opacity:0;pointer-events:none;
+ border-radius:18px;padding:14px 20px;font-weight:900;font-size:clamp(18px,5vw,24px);transition:.14s;background:#11142b;border:1px solid #3b406e
+}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.toast.good{background:#0f5136;border-color:#29b778}.toast.bad{background:#6a2528;border-color:#dc625d}
+@media (max-width:380px){
+ .badge{font-size:9px;padding:5px 8px}.brand{font-size:18px}.quiz-panel{padding:7px}.answer{font-size:14px}.hard{padding:7px 8px}
+}
+@media (max-height:760px){
+ .app{gap:4px;padding-top:4px;padding-bottom:4px}.header{min-height:38px}.badge{padding:4px 8px}.brand{font-size:18px}
+ .quiz-panel{gap:4px;padding:7px}.word-row{min-height:46px}.word{font-size:clamp(22px,6.4vw,31px)}.speak{width:40px;height:40px}
+ .answer{font-size:14px;padding:6px 9px}.feedback{min-height:30px;font-size:12px}.hard{font-size:11px;padding:6px 8px}
+}
+@media (max-height:650px){
+ .header{display:none}.quiz-panel{border-radius:14px}.quiz-title{font-size:11px}.progress-text{font-size:10px}
+ .word-row{min-height:40px}.word{font-size:22px}.answer{font-size:13px;border-radius:11px}.feedback{min-height:26px}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-<div class="top"><div class="brand">🛡️ Cyber Words Trainer</div><div class="badge">NICCS / CISA</div></div>
-<div class="panel">
-<div class="stats">
-<div class="stat"><b id="score">0</b><span>נכונות</span></div><div class="stat"><b id="wrong">0</b><span>טעויות</span></div>
-<div class="stat"><b id="streak">0</b><span>רצף</span></div><div class="stat"><b id="mastered">0</b><span>שולט בהן</span></div>
-</div>
-<div class="counter" id="counter"></div><div class="progress"><div id="bar"></div></div>
-<div class="word-row"><button class="icon-btn" id="speak" title="השמעת המילה">🔊</button><div class="word" id="word">loading...</div></div>
-<div class="answers" id="answers"></div><div class="feedback" id="feedback"></div>
-<div class="actions"><button class="btn primary" id="next">המילה הבאה ←</button><button class="btn" id="hard">☆ סמן כקשה</button><button class="btn" id="showList">📚 כל המילים</button></div>
-<div class="settings">
-<select id="mode"><option value="all">כל המילים</option><option value="wrong">רק מילים שטעיתי בהן</option><option value="hard">רק מילים שסימנתי כקשות</option><option value="unmastered">מילים שעדיין לא שלטתי בהן</option></select>
-<label class="switch"><span>השמעה אוטומטית</span><input id="autoSpeak" type="checkbox"></label>
-</div>
-<div class="small">המאגר באפליקציה מבוסס על מונחי הסייבר של NICCS/CISA. ההתקדמות נשמרת בדפדפן במכשיר שלך. תשובה נכונה 3 פעמים על אותה מילה מסמנת אותה כ״שולט בה״.</div>
-</div></div>
-<div class="modal" id="modal"><div class="sheet"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2>כל המילים</h2><button class="icon-btn" id="close">✕</button></div><input class="search" id="search" placeholder="חיפוש באנגלית או בעברית..."><div id="list"></div></div></div>
+<div class="app">
+  <div class="header">
+    <div class="header-spacer"></div>
+    <div class="brand">Cyber Words Trainer 🛡️</div>
+    <div class="badge">NICCS / CISA</div>
+  </div>
 
+  <section id="home" class="screen home active">
+    <div class="home-card">
+      <h1>בחר מבחן</h1>
+      <p>כל מבחן כולל 10 מילים. בסיום תקבל ציון, טעויות ואפשרות לעבור מיד למבחן הבא.</p>
+      <div id="categories" class="categories"></div>
+    </div>
+  </section>
+
+  <section id="quiz" class="screen quiz">
+    <div class="quiz-panel">
+      <div class="quiz-top">
+        <div id="quizTitle" class="quiz-title"></div>
+        <button id="exitQuiz" class="exit">קטגוריות</button>
+      </div>
+      <div class="progress-wrap">
+        <div id="progressText" class="progress-text"></div>
+        <div class="progress"><div id="bar"></div></div>
+      </div>
+      <div class="word-row">
+        <div id="word" class="word"></div>
+        <button id="speak" class="speak">🔊</button>
+      </div>
+      <div id="answers" class="answers"></div>
+      <div class="quiz-bottom">
+        <div id="feedback" class="feedback">בחר תשובה</div>
+        <button id="hard" class="hard">☆ קשה</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="result" class="screen result">
+    <div class="result-card">
+      <div id="score" class="score">0/10</div>
+      <div id="resultSub" class="result-sub"></div>
+      <div id="review" class="review"></div>
+      <div class="result-actions">
+        <button id="nextExam" class="primary">המבחן הבא</button>
+        <button id="backHome" class="secondary">קטגוריות</button>
+      </div>
+    </div>
+  </section>
+</div>
+<div id="toast" class="toast"></div>
 <script>
-const WORDS = [{"en":"access","he":"גישה"},{"en":"access and identity management","he":"ניהול גישה וזהויות"},{"en":"access control","he":"בקרת גישה"},{"en":"access control mechanism","he":"מנגנון בקרת גישה"},{"en":"active attack","he":"תקיפה פעילה"},{"en":"active content","he":"תוכן פעיל"},{"en":"advanced persistent threat","he":"איום מתמשך מתקדם (APT)"},{"en":"adversary","he":"יריב / גורם עוין"},{"en":"attacker","he":"תוקף"},{"en":"authenticate","he":"לאמת זהות"},{"en":"authentication","he":"אימות זהות"},{"en":"authenticity","he":"אותנטיות / מקוריות"},{"en":"authorization","he":"הרשאה"},{"en":"availability","he":"זמינות"},{"en":"asset","he":"נכס"},{"en":"attack","he":"תקיפה"},{"en":"attack surface","he":"שטח תקיפה"},{"en":"backdoor","he":"דלת אחורית"},{"en":"blackbox","he":"בדיקת קופסה שחורה"},{"en":"blue team","he":"צוות הגנה"},{"en":"bot","he":"מחשב / רכיב נגוע הנשלט מרחוק"},{"en":"bot herder","he":"מפעיל בוטנט"},{"en":"bot master","he":"מפעיל בוטנט"},{"en":"botnet","he":"רשת מחשבים נגועים"},{"en":"bruteforce","he":"ניחוש בכוח גס"},{"en":"bug","he":"באג / תקלה בתוכנה"},{"en":"build security in","he":"בניית אבטחה כחלק מהמערכת"},{"en":"capability","he":"יכולת"},{"en":"catphish","he":"התחזות בזהות מקוונת מזויפת"},{"en":"cipher","he":"צופן"},{"en":"ciphertext","he":"טקסט מוצפן"},{"en":"client-side","he":"צד לקוח"},{"en":"cloud computing","he":"מחשוב ענן"},{"en":"computer security incident","he":"אירוע אבטחת מחשב"},{"en":"confidentiality","he":"סודיות"},{"en":"consequence","he":"תוצאה / השלכה"},{"en":"continuity of operations plan","he":"תוכנית המשכיות תפעולית"},{"en":"counter intelligence","he":"מודיעין נגדי"},{"en":"crimeware","he":"נוזקה לביצוע פשיעת סייבר"},{"en":"critical infrastructure","he":"תשתית קריטית"},{"en":"cryptanalysis","he":"ניתוח צפנים"},{"en":"cryptography","he":"קריפטוגרפיה / הצפנה"},{"en":"cryptology","he":"תורת הצפנים"},{"en":"cryptomalware","he":"נוזקה שמצפינה מידע ודורשת כופר"},{"en":"cryptominer","he":"כורה מטבעות קריפטוגרפיים"},{"en":"cryptojacking","he":"כריית קריפטו לא מורשית"},{"en":"cyber ecosystem","he":"מערכת אקולוגית סייברית"},{"en":"cyber exercise","he":"תרגיל סייבר"},{"en":"cyber incident","he":"אירוע סייבר"},{"en":"cyber incident response plan","he":"תוכנית תגובה לאירוע סייבר"},{"en":"cyber infrastructure","he":"תשתית סייבר"},{"en":"cyber operations","he":"מבצעי סייבר"},{"en":"cyber operations planning","he":"תכנון מבצעי סייבר"},{"en":"cyber threat intelligence","he":"מודיעין איומי סייבר"},{"en":"cyberattack","he":"מתקפת סייבר"},{"en":"cyberespionage","he":"ריגול סייבר"},{"en":"cybersecurity","he":"אבטחת סייבר"},{"en":"cybersecurity-aware","he":"מודע לאיומי סייבר"},{"en":"cyberthreat","he":"איום סייבר"},{"en":"cyberwarfare","he":"לוחמת סייבר"},{"en":"data breach","he":"דליפת / פריצת מידע"},{"en":"decipher","he":"לפענח"},{"en":"decode","he":"לפענח קידוד"},{"en":"decrypt","he":"לפענח הצפנה"},{"en":"decryption","he":"פענוח הצפנה"},{"en":"decryptor","he":"כלי לפענוח קבצים מוצפנים"},{"en":"deepfake","he":"זיוף עמוק"},{"en":"denial of service","he":"מניעת שירות"},{"en":"designed-in security","he":"אבטחה מובנית בתכנון"},{"en":"DevOps","he":"פיתוח ותפעול משולבים"},{"en":"DevSecOps","he":"פיתוח, אבטחה ותפעול משולבים"},{"en":"digital forensics","he":"זיהוי פלילי דיגיטלי"},{"en":"digital rights management","he":"ניהול זכויות דיגיטליות"},{"en":"digital signature","he":"חתימה דיגיטלית"},{"en":"disinformation","he":"דיסאינפורמציה / מידע כוזב מכוון"},{"en":"disruption","he":"שיבוש"},{"en":"disruptionware","he":"נוזקה לשיבוש פעילות"},{"en":"DNS","he":"מערכת שמות מתחם"},{"en":"endpoint","he":"תחנת קצה"},{"en":"encrypt","he":"להצפין"},{"en":"encryption","he":"הצפנה"},{"en":"enterprise risk management","he":"ניהול סיכונים ארגוני"},{"en":"event","he":"אירוע / התרחשות"},{"en":"exploit","he":"ניצול חולשה"},{"en":"exploitation analysis","he":"ניתוח אפשרויות ניצול"},{"en":"exposure","he":"חשיפה"},{"en":"failure","he":"כשל"},{"en":"firewall","he":"חומת אש"},{"en":"footprinting","he":"איסוף מידע על יעד"},{"en":"forensics","he":"זיהוי פלילי דיגיטלי"},{"en":"fuzzer","he":"כלי לבדיקת קלטים חריגים"},{"en":"geofencing","he":"הגדרת גבול גאוגרפי"},{"en":"GeoIP","he":"מיקום גאוגרפי לפי כתובת IP"},{"en":"georedundancy","he":"יתירות גאוגרפית"},{"en":"hacker","he":"האקר / פורץ"},{"en":"hardening","he":"הקשחה"},{"en":"hash value","he":"ערך גיבוב"},{"en":"hashing","he":"גיבוב"},{"en":"hazard","he":"סכנה"},{"en":"honeynet","he":"רשת פיתיון"},{"en":"honeypot","he":"מערכת פיתיון"},{"en":"honeytoken","he":"מידע פיתיון"},{"en":"identity and access management","he":"ניהול זהויות והרשאות"},{"en":"IDaaS","he":"זהות כשירות"},{"en":"IDPS","he":"מערכת זיהוי ומניעת חדירות"},{"en":"IIoT","he":"האינטרנט התעשייתי של הדברים"},{"en":"impact","he":"השפעה / עוצמת הנזק"},{"en":"impersonation","he":"התחזות"},{"en":"incident","he":"אירוע אבטחה"},{"en":"incident response","he":"תגובה לאירוע"},{"en":"indicator","he":"אינדיקטור / סימן"},{"en":"indicator of attack","he":"אינדיקטור לתקיפה"},{"en":"indicator of compromise","he":"אינדיקטור לפגיעה / פריצה"},{"en":"information assurance","he":"הבטחת מידע"},{"en":"information security","he":"אבטחת מידע"},{"en":"information security policy","he":"מדיניות אבטחת מידע"},{"en":"information sharing","he":"שיתוף מידע"},{"en":"information system resilience","he":"חוסן מערכת מידע"},{"en":"information technology","he":"טכנולוגיית מידע"},{"en":"InfoSec","he":"אבטחת מידע"},{"en":"insider threat","he":"איום פנימי"},{"en":"integrity","he":"שלמות / אמינות המידע"},{"en":"IPSec","he":"אבטחת פרוטוקול אינטרנט"},{"en":"IT asset","he":"נכס IT"},{"en":"keylogger","he":"לוכד הקשות מקלדת"},{"en":"keystore","he":"מאגר מפתחות ותעודות"},{"en":"knowledge management","he":"ניהול ידע"},{"en":"LaaS","he":"לוגים כשירות"},{"en":"LangSec","he":"אבטחת שפות וקלטים"},{"en":"least privilege","he":"עקרון ההרשאה המינימלית"},{"en":"macro virus","he":"וירוס מאקרו"},{"en":"malicious applet","he":"יישומון זדוני"},{"en":"malicious code","he":"קוד זדוני"},{"en":"malicious logic","he":"לוגיקה זדונית"},{"en":"malvertising","he":"פרסום זדוני"},{"en":"malware","he":"נוזקה"},{"en":"mitigation","he":"הפחתת סיכון"},{"en":"multi-factor authentication","he":"אימות רב-שלבי"},{"en":"network resilience","he":"חוסן רשת"},{"en":"non-repudiation","he":"אי-התכחשות"},{"en":"NVD","he":"מאגר החולשות הלאומי"},{"en":"PaaS","he":"פלטפורמה כשירות"},{"en":"passive attack","he":"תקיפה פסיבית"},{"en":"password","he":"סיסמה"},{"en":"passwordless","he":"אימות ללא סיסמה"},{"en":"phishing","he":"דיוג"},{"en":"PII","he":"מידע המאפשר זיהוי אישי"},{"en":"plaintext","he":"טקסט גלוי / לא מוצפן"},{"en":"precursor","he":"סימן מקדים לאירוע"},{"en":"preparedness","he":"מוכנות"},{"en":"privacy","he":"פרטיות"},{"en":"ransomware","he":"כופרה"},{"en":"recovery","he":"התאוששות"},{"en":"red team","he":"צוות תקיפה"},{"en":"resilience","he":"חוסן"},{"en":"risk","he":"סיכון"},{"en":"risk assessment","he":"הערכת סיכונים"},{"en":"risk management","he":"ניהול סיכונים"},{"en":"risk mitigation","he":"הפחתת סיכון"},{"en":"rootkit","he":"ערכת כלים להסתרת שליטה במערכת"},{"en":"RTOS","he":"מערכת הפעלה בזמן אמת"},{"en":"scareware","he":"תוכנה שמפחידה את המשתמש"},{"en":"SECaaS","he":"אבטחה כשירות"},{"en":"SecDevOps","he":"פיתוח מאובטח משולב בתפעול"},{"en":"SecOps","he":"אבטחה ותפעול משולבים"},{"en":"secret key","he":"מפתח סודי"},{"en":"securely provision","he":"הקמה ואספקה מאובטחת"},{"en":"security automation","he":"אוטומציה באבטחה"},{"en":"security incident","he":"אירוע אבטחה"},{"en":"security policy","he":"מדיניות אבטחה"},{"en":"security program management","he":"ניהול תוכנית אבטחה"},{"en":"SIEM","he":"ניהול מידע ואירועי אבטחה"},{"en":"signature","he":"חתימה / תבנית זיהוי"},{"en":"situational awareness","he":"מודעות מצבית"},{"en":"Slowloris","he":"מתקפת מניעת שירות עם בקשות HTTP חלקיות"},{"en":"smishing","he":"דיוג באמצעות SMS"},{"en":"SOC","he":"מרכז תפעול אבטחה"},{"en":"social engineering","he":"הנדסה חברתית"},{"en":"segregation of duties","he":"הפרדת תפקידים"},{"en":"software assurance","he":"הבטחת תוכנה"},{"en":"spam","he":"דואר זבל"},{"en":"subject","he":"ישות פעילה המבצעת פעולה"},{"en":"supervisory control and data acquisition","he":"בקרה ופיקוח ואיסוף נתונים (SCADA)"},{"en":"supply chain","he":"שרשרת אספקה"},{"en":"threat","he":"איום"},{"en":"threat agent","he":"גורם איום"},{"en":"threatscape","he":"נוף האיומים"},{"en":"threatware","he":"שם כללי לתוכנה זדונית"},{"en":"ticket","he":"כרטיס אימות / הרשאה"},{"en":"timestomping","he":"שינוי חותמות זמן להסתרת פעילות"},{"en":"traffic light protocol","he":"פרוטוקול רמזור לשיתוף מידע"},{"en":"trojan","he":"סוס טרויאני"},{"en":"trojan horse","he":"סוס טרויאני"},{"en":"typosquatting","he":"התחזות לדומיין באמצעות שגיאת כתיב"},{"en":"vishing","he":"דיוג קולי"},{"en":"vulnerability","he":"חולשה"},{"en":"vulnerability assessment","he":"הערכת חולשות"},{"en":"wardriving","he":"איתור רשתות אלחוטיות תוך כדי תנועה"},{"en":"wargaming","he":"תרגול תרחישי סייבר"},{"en":"weakness","he":"חולשה / ליקוי"},{"en":"weaponization","he":"הפיכת יכולת לכלי תקיפה"},{"en":"weaponize","he":"להפוך ניצול חולשה לכלי תקיפה"},{"en":"white team","he":"צוות בקרה בתרגיל"},{"en":"whitebox","he":"בדיקת קופסה לבנה"},{"en":"work factor","he":"הערכת המאמץ להתגבר על הגנה"},{"en":"worm","he":"תולעת מחשב"},{"en":"XaaS","he":"הכול כשירות"},{"en":"zero trust","he":"אפס אמון"},{"en":"zero-day","he":"חולשת יום אפס"}];
-const KEY='cyber_words_trainer_v1';
+const WORDS = [{"en":"access","he":"גישה","cat":"Identity & Access"},{"en":"access and identity management","he":"ניהול גישה וזהויות","cat":"Identity & Access"},{"en":"access control","he":"בקרת גישה","cat":"Identity & Access"},{"en":"access control mechanism","he":"מנגנון בקרת גישה","cat":"Identity & Access"},{"en":"active attack","he":"תקיפה פעילה","cat":"IT & Network"},{"en":"active content","he":"תוכן פעיל","cat":"IT & Network"},{"en":"advanced persistent threat","he":"איום מתמשך מתקדם (APT)","cat":"CISO Core"},{"en":"adversary","he":"יריב / גורם עוין","cat":"IT & Network"},{"en":"attacker","he":"תוקף","cat":"IT & Network"},{"en":"authenticate","he":"לאמת זהות","cat":"Identity & Access"},{"en":"authentication","he":"אימות זהות","cat":"Identity & Access"},{"en":"authenticity","he":"אותנטיות / מקוריות","cat":"IT & Network"},{"en":"authorization","he":"הרשאה","cat":"Identity & Access"},{"en":"availability","he":"זמינות","cat":"CISO Core"},{"en":"asset","he":"נכס","cat":"CISO Core"},{"en":"attack","he":"תקיפה","cat":"IT & Network"},{"en":"attack surface","he":"שטח תקיפה","cat":"IT & Network"},{"en":"backdoor","he":"דלת אחורית","cat":"IT & Network"},{"en":"blackbox","he":"בדיקת קופסה שחורה","cat":"IT & Network"},{"en":"blue team","he":"צוות הגנה","cat":"IT & Network"},{"en":"bot","he":"מחשב / רכיב נגוע הנשלט מרחוק","cat":"IT & Network"},{"en":"bot herder","he":"מפעיל בוטנט","cat":"Malware & Attacks"},{"en":"bot master","he":"מפעיל בוטנט","cat":"Malware & Attacks"},{"en":"botnet","he":"רשת מחשבים נגועים","cat":"Malware & Attacks"},{"en":"bruteforce","he":"ניחוש בכוח גס","cat":"IT & Network"},{"en":"bug","he":"באג / תקלה בתוכנה","cat":"IT & Network"},{"en":"build security in","he":"בניית אבטחה כחלק מהמערכת","cat":"Cloud / AppSec"},{"en":"capability","he":"יכולת","cat":"IT & Network"},{"en":"catphish","he":"התחזות בזהות מקוונת מזויפת","cat":"Malware & Attacks"},{"en":"cipher","he":"צופן","cat":"Crypto & Data Protection"},{"en":"ciphertext","he":"טקסט מוצפן","cat":"Crypto & Data Protection"},{"en":"client-side","he":"צד לקוח","cat":"Cloud / AppSec"},{"en":"cloud computing","he":"מחשוב ענן","cat":"Cloud / AppSec"},{"en":"computer security incident","he":"אירוע אבטחת מחשב","cat":"SOC / Incident Response"},{"en":"confidentiality","he":"סודיות","cat":"CISO Core"},{"en":"consequence","he":"תוצאה / השלכה","cat":"CISO Core"},{"en":"continuity of operations plan","he":"תוכנית המשכיות תפעולית","cat":"SOC / Incident Response"},{"en":"counter intelligence","he":"מודיעין נגדי","cat":"IT & Network"},{"en":"crimeware","he":"נוזקה לביצוע פשיעת סייבר","cat":"Malware & Attacks"},{"en":"critical infrastructure","he":"תשתית קריטית","cat":"OT / ICS"},{"en":"cryptanalysis","he":"ניתוח צפנים","cat":"Crypto & Data Protection"},{"en":"cryptography","he":"קריפטוגרפיה / הצפנה","cat":"Crypto & Data Protection"},{"en":"cryptology","he":"תורת הצפנים","cat":"Crypto & Data Protection"},{"en":"cryptomalware","he":"נוזקה שמצפינה מידע ודורשת כופר","cat":"Crypto & Data Protection"},{"en":"cryptominer","he":"כורה מטבעות קריפטוגרפיים","cat":"Crypto & Data Protection"},{"en":"cryptojacking","he":"כריית קריפטו לא מורשית","cat":"Crypto & Data Protection"},{"en":"cyber ecosystem","he":"מערכת אקולוגית סייברית","cat":"IT & Network"},{"en":"cyber exercise","he":"תרגיל סייבר","cat":"SOC / Incident Response"},{"en":"cyber incident","he":"אירוע סייבר","cat":"SOC / Incident Response"},{"en":"cyber incident response plan","he":"תוכנית תגובה לאירוע סייבר","cat":"SOC / Incident Response"},{"en":"cyber infrastructure","he":"תשתית סייבר","cat":"IT & Network"},{"en":"cyber operations","he":"מבצעי סייבר","cat":"IT & Network"},{"en":"cyber operations planning","he":"תכנון מבצעי סייבר","cat":"IT & Network"},{"en":"cyber threat intelligence","he":"מודיעין איומי סייבר","cat":"CISO Core"},{"en":"cyberattack","he":"מתקפת סייבר","cat":"IT & Network"},{"en":"cyberespionage","he":"ריגול סייבר","cat":"IT & Network"},{"en":"cybersecurity","he":"אבטחת סייבר","cat":"IT & Network"},{"en":"cybersecurity-aware","he":"מודע לאיומי סייבר","cat":"IT & Network"},{"en":"cyberthreat","he":"איום סייבר","cat":"CISO Core"},{"en":"cyberwarfare","he":"לוחמת סייבר","cat":"IT & Network"},{"en":"data breach","he":"דליפת / פריצת מידע","cat":"IT & Network"},{"en":"decipher","he":"לפענח","cat":"Crypto & Data Protection"},{"en":"decode","he":"לפענח קידוד","cat":"IT & Network"},{"en":"decrypt","he":"לפענח הצפנה","cat":"Crypto & Data Protection"},{"en":"decryption","he":"פענוח הצפנה","cat":"Crypto & Data Protection"},{"en":"decryptor","he":"כלי לפענוח קבצים מוצפנים","cat":"Crypto & Data Protection"},{"en":"deepfake","he":"זיוף עמוק","cat":"Malware & Attacks"},{"en":"denial of service","he":"מניעת שירות","cat":"IT & Network"},{"en":"designed-in security","he":"אבטחה מובנית בתכנון","cat":"Cloud / AppSec"},{"en":"DevOps","he":"פיתוח ותפעול משולבים","cat":"Cloud / AppSec"},{"en":"DevSecOps","he":"פיתוח, אבטחה ותפעול משולבים","cat":"Cloud / AppSec"},{"en":"digital forensics","he":"זיהוי פלילי דיגיטלי","cat":"SOC / Incident Response"},{"en":"digital rights management","he":"ניהול זכויות דיגיטליות","cat":"IT & Network"},{"en":"digital signature","he":"חתימה דיגיטלית","cat":"Crypto & Data Protection"},{"en":"disinformation","he":"דיסאינפורמציה / מידע כוזב מכוון","cat":"Malware & Attacks"},{"en":"disruption","he":"שיבוש","cat":"IT & Network"},{"en":"disruptionware","he":"נוזקה לשיבוש פעילות","cat":"IT & Network"},{"en":"DNS","he":"מערכת שמות מתחם","cat":"IT & Network"},{"en":"endpoint","he":"תחנת קצה","cat":"IT & Network"},{"en":"encrypt","he":"להצפין","cat":"Crypto & Data Protection"},{"en":"encryption","he":"הצפנה","cat":"Crypto & Data Protection"},{"en":"enterprise risk management","he":"ניהול סיכונים ארגוני","cat":"CISO Core"},{"en":"event","he":"אירוע / התרחשות","cat":"IT & Network"},{"en":"exploit","he":"ניצול חולשה","cat":"IT & Network"},{"en":"exploitation analysis","he":"ניתוח אפשרויות ניצול","cat":"IT & Network"},{"en":"exposure","he":"חשיפה","cat":"CISO Core"},{"en":"failure","he":"כשל","cat":"IT & Network"},{"en":"firewall","he":"חומת אש","cat":"IT & Network"},{"en":"footprinting","he":"איסוף מידע על יעד","cat":"IT & Network"},{"en":"forensics","he":"זיהוי פלילי דיגיטלי","cat":"SOC / Incident Response"},{"en":"fuzzer","he":"כלי לבדיקת קלטים חריגים","cat":"Cloud / AppSec"},{"en":"geofencing","he":"הגדרת גבול גאוגרפי","cat":"IT & Network"},{"en":"GeoIP","he":"מיקום גאוגרפי לפי כתובת IP","cat":"IT & Network"},{"en":"georedundancy","he":"יתירות גאוגרפית","cat":"IT & Network"},{"en":"hacker","he":"האקר / פורץ","cat":"IT & Network"},{"en":"hardening","he":"הקשחה","cat":"IT & Network"},{"en":"hash value","he":"ערך גיבוב","cat":"Crypto & Data Protection"},{"en":"hashing","he":"גיבוב","cat":"Crypto & Data Protection"},{"en":"hazard","he":"סכנה","cat":"CISO Core"},{"en":"honeynet","he":"רשת פיתיון","cat":"IT & Network"},{"en":"honeypot","he":"מערכת פיתיון","cat":"IT & Network"},{"en":"honeytoken","he":"מידע פיתיון","cat":"IT & Network"},{"en":"identity and access management","he":"ניהול זהויות והרשאות","cat":"Identity & Access"},{"en":"IDaaS","he":"זהות כשירות","cat":"Identity & Access"},{"en":"IDPS","he":"מערכת זיהוי ומניעת חדירות","cat":"IT & Network"},{"en":"IIoT","he":"האינטרנט התעשייתי של הדברים","cat":"OT / ICS"},{"en":"impact","he":"השפעה / עוצמת הנזק","cat":"CISO Core"},{"en":"impersonation","he":"התחזות","cat":"Identity & Access"},{"en":"incident","he":"אירוע אבטחה","cat":"SOC / Incident Response"},{"en":"incident response","he":"תגובה לאירוע","cat":"SOC / Incident Response"},{"en":"indicator","he":"אינדיקטור / סימן","cat":"SOC / Incident Response"},{"en":"indicator of attack","he":"אינדיקטור לתקיפה","cat":"SOC / Incident Response"},{"en":"indicator of compromise","he":"אינדיקטור לפגיעה / פריצה","cat":"SOC / Incident Response"},{"en":"information assurance","he":"הבטחת מידע","cat":"CISO Core"},{"en":"information security","he":"אבטחת מידע","cat":"CISO Core"},{"en":"information security policy","he":"מדיניות אבטחת מידע","cat":"CISO Core"},{"en":"information sharing","he":"שיתוף מידע","cat":"SOC / Incident Response"},{"en":"information system resilience","he":"חוסן מערכת מידע","cat":"CISO Core"},{"en":"information technology","he":"טכנולוגיית מידע","cat":"IT & Network"},{"en":"InfoSec","he":"אבטחת מידע","cat":"IT & Network"},{"en":"insider threat","he":"איום פנימי","cat":"CISO Core"},{"en":"integrity","he":"שלמות / אמינות המידע","cat":"CISO Core"},{"en":"IPSec","he":"אבטחת פרוטוקול אינטרנט","cat":"IT & Network"},{"en":"IT asset","he":"נכס IT","cat":"CISO Core"},{"en":"keylogger","he":"לוכד הקשות מקלדת","cat":"Malware & Attacks"},{"en":"keystore","he":"מאגר מפתחות ותעודות","cat":"Crypto & Data Protection"},{"en":"knowledge management","he":"ניהול ידע","cat":"IT & Network"},{"en":"LaaS","he":"לוגים כשירות","cat":"Cloud / AppSec"},{"en":"LangSec","he":"אבטחת שפות וקלטים","cat":"Cloud / AppSec"},{"en":"least privilege","he":"עקרון ההרשאה המינימלית","cat":"Identity & Access"},{"en":"macro virus","he":"וירוס מאקרו","cat":"Malware & Attacks"},{"en":"malicious applet","he":"יישומון זדוני","cat":"Malware & Attacks"},{"en":"malicious code","he":"קוד זדוני","cat":"Malware & Attacks"},{"en":"malicious logic","he":"לוגיקה זדונית","cat":"Malware & Attacks"},{"en":"malvertising","he":"פרסום זדוני","cat":"Malware & Attacks"},{"en":"malware","he":"נוזקה","cat":"Malware & Attacks"},{"en":"mitigation","he":"הפחתת סיכון","cat":"CISO Core"},{"en":"multi-factor authentication","he":"אימות רב-שלבי","cat":"Identity & Access"},{"en":"network resilience","he":"חוסן רשת","cat":"CISO Core"},{"en":"non-repudiation","he":"אי-התכחשות","cat":"CISO Core"},{"en":"NVD","he":"מאגר החולשות הלאומי","cat":"IT & Network"},{"en":"PaaS","he":"פלטפורמה כשירות","cat":"Cloud / AppSec"},{"en":"passive attack","he":"תקיפה פסיבית","cat":"IT & Network"},{"en":"password","he":"סיסמה","cat":"Identity & Access"},{"en":"passwordless","he":"אימות ללא סיסמה","cat":"Identity & Access"},{"en":"phishing","he":"דיוג","cat":"Malware & Attacks"},{"en":"PII","he":"מידע המאפשר זיהוי אישי","cat":"IT & Network"},{"en":"plaintext","he":"טקסט גלוי / לא מוצפן","cat":"Crypto & Data Protection"},{"en":"precursor","he":"סימן מקדים לאירוע","cat":"IT & Network"},{"en":"preparedness","he":"מוכנות","cat":"SOC / Incident Response"},{"en":"privacy","he":"פרטיות","cat":"CISO Core"},{"en":"ransomware","he":"כופרה","cat":"Malware & Attacks"},{"en":"recovery","he":"התאוששות","cat":"SOC / Incident Response"},{"en":"red team","he":"צוות תקיפה","cat":"IT & Network"},{"en":"resilience","he":"חוסן","cat":"CISO Core"},{"en":"risk","he":"סיכון","cat":"CISO Core"},{"en":"risk assessment","he":"הערכת סיכונים","cat":"CISO Core"},{"en":"risk management","he":"ניהול סיכונים","cat":"CISO Core"},{"en":"risk mitigation","he":"הפחתת סיכון","cat":"CISO Core"},{"en":"rootkit","he":"ערכת כלים להסתרת שליטה במערכת","cat":"Malware & Attacks"},{"en":"RTOS","he":"מערכת הפעלה בזמן אמת","cat":"OT / ICS"},{"en":"scareware","he":"תוכנה שמפחידה את המשתמש","cat":"Malware & Attacks"},{"en":"SECaaS","he":"אבטחה כשירות","cat":"Cloud / AppSec"},{"en":"SecDevOps","he":"פיתוח מאובטח משולב בתפעול","cat":"Cloud / AppSec"},{"en":"SecOps","he":"אבטחה ותפעול משולבים","cat":"IT & Network"},{"en":"secret key","he":"מפתח סודי","cat":"Crypto & Data Protection"},{"en":"securely provision","he":"הקמה ואספקה מאובטחת","cat":"Cloud / AppSec"},{"en":"security automation","he":"אוטומציה באבטחה","cat":"IT & Network"},{"en":"security incident","he":"אירוע אבטחה","cat":"SOC / Incident Response"},{"en":"security policy","he":"מדיניות אבטחה","cat":"CISO Core"},{"en":"security program management","he":"ניהול תוכנית אבטחה","cat":"IT & Network"},{"en":"SIEM","he":"ניהול מידע ואירועי אבטחה","cat":"SOC / Incident Response"},{"en":"signature","he":"חתימה / תבנית זיהוי","cat":"IT & Network"},{"en":"situational awareness","he":"מודעות מצבית","cat":"SOC / Incident Response"},{"en":"Slowloris","he":"מתקפת מניעת שירות עם בקשות HTTP חלקיות","cat":"Malware & Attacks"},{"en":"smishing","he":"דיוג באמצעות SMS","cat":"Malware & Attacks"},{"en":"SOC","he":"מרכז תפעול אבטחה","cat":"SOC / Incident Response"},{"en":"social engineering","he":"הנדסה חברתית","cat":"IT & Network"},{"en":"segregation of duties","he":"הפרדת תפקידים","cat":"CISO Core"},{"en":"software assurance","he":"הבטחת תוכנה","cat":"Cloud / AppSec"},{"en":"spam","he":"דואר זבל","cat":"IT & Network"},{"en":"subject","he":"ישות פעילה המבצעת פעולה","cat":"Identity & Access"},{"en":"supervisory control and data acquisition","he":"בקרה ופיקוח ואיסוף נתונים (SCADA)","cat":"OT / ICS"},{"en":"supply chain","he":"שרשרת אספקה","cat":"CISO Core"},{"en":"threat","he":"איום","cat":"CISO Core"},{"en":"threat agent","he":"גורם איום","cat":"CISO Core"},{"en":"threatscape","he":"נוף האיומים","cat":"CISO Core"},{"en":"threatware","he":"שם כללי לתוכנה זדונית","cat":"CISO Core"},{"en":"ticket","he":"כרטיס אימות / הרשאה","cat":"IT & Network"},{"en":"timestomping","he":"שינוי חותמות זמן להסתרת פעילות","cat":"IT & Network"},{"en":"traffic light protocol","he":"פרוטוקול רמזור לשיתוף מידע","cat":"IT & Network"},{"en":"trojan","he":"סוס טרויאני","cat":"Malware & Attacks"},{"en":"trojan horse","he":"סוס טרויאני","cat":"Malware & Attacks"},{"en":"typosquatting","he":"התחזות לדומיין באמצעות שגיאת כתיב","cat":"Malware & Attacks"},{"en":"vishing","he":"דיוג קולי","cat":"Malware & Attacks"},{"en":"vulnerability","he":"חולשה","cat":"CISO Core"},{"en":"vulnerability assessment","he":"הערכת חולשות","cat":"CISO Core"},{"en":"wardriving","he":"איתור רשתות אלחוטיות תוך כדי תנועה","cat":"IT & Network"},{"en":"wargaming","he":"תרגול תרחישי סייבר","cat":"SOC / Incident Response"},{"en":"weakness","he":"חולשה / ליקוי","cat":"CISO Core"},{"en":"weaponization","he":"הפיכת יכולת לכלי תקיפה","cat":"IT & Network"},{"en":"weaponize","he":"להפוך ניצול חולשה לכלי תקיפה","cat":"IT & Network"},{"en":"white team","he":"צוות בקרה בתרגיל","cat":"IT & Network"},{"en":"whitebox","he":"בדיקת קופסה לבנה","cat":"IT & Network"},{"en":"work factor","he":"הערכת המאמץ להתגבר על הגנה","cat":"IT & Network"},{"en":"worm","he":"תולעת מחשב","cat":"Malware & Attacks"},{"en":"XaaS","he":"הכול כשירות","cat":"Cloud / AppSec"},{"en":"zero trust","he":"אפס אמון","cat":"IT & Network"},{"en":"zero-day","he":"חולשת יום אפס","cat":"IT & Network"}];
+
+const CATEGORIES = [
+ {id:'all',name:'כל נושאי CISO',desc:'מבחן מעורב מכל המאגר'},
+ {id:'CISO Core',name:'CISO Core',desc:'סיכונים, נכסים, מדיניות, CIA'},
+ {id:'OT / ICS',name:'OT / ICS',desc:'SCADA, IIoT, תשתיות קריטיות והגנת OT'},
+ {id:'IT & Network',name:'IT & Network',desc:'רשתות, תחנות קצה ותשתיות IT'},
+ {id:'Identity & Access',name:'Identity & Access',desc:'אימות, הרשאות ו-IAM'},
+ {id:'SOC / Incident Response',name:'SOC / Incident Response',desc:'SIEM, אירועים, פורנזיקה ותגובה'},
+ {id:'Malware & Attacks',name:'Malware & Attacks',desc:'דיוג, כופרה, נוזקות ותקיפות'},
+ {id:'Cloud / AppSec',name:'Cloud / AppSec',desc:'DevSecOps, ענן ואבטחת תוכנה'},
+ {id:'Crypto & Data Protection',name:'Crypto & Data',desc:'הצפנה, Hash, מפתחות והגנת מידע'}
+];
+
+const OT_EXTRA = new Set(["IIoT","RTOS","access control","access control mechanism","asset","availability","confidentiality","critical infrastructure","cyber incident","cyber incident response plan","cybersecurity","endpoint","firewall","hardening","impact","incident","incident response","integrity","network resilience","risk","risk assessment","risk management","security incident","security policy","situational awareness","supervisory control and data acquisition","threat","vulnerability","vulnerability assessment"]);
+
+const KEY='cyber_trainer_v3';
 let state=JSON.parse(localStorage.getItem(KEY)||'{}');
-state.correct=state.correct||{};state.wrong=state.wrong||{};state.hard=state.hard||{};state.totalCorrect=state.totalCorrect||0;state.totalWrong=state.totalWrong||0;state.streak=state.streak||0;
-let pool=[],current=null,locked=false,seenSession=0;
+state.hard=state.hard||{};
+state.used=state.used||{};
+state.examNo=state.examNo||{};
+let currentCategory='all', exam=[], qi=0, correct=0, locked=false, review=[];
+
 const $=id=>document.getElementById(id);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const key=w=>w.en.toLowerCase();
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function norm(s){return s.toLowerCase()}
-function buildPool(){
- const mode=$('mode').value;
- pool=WORDS.filter(w=>{const k=norm(w.en);if(mode==='wrong')return(state.wrong[k]||0)>0;if(mode==='hard')return!!state.hard[k];if(mode==='unmastered')return(state.correct[k]||0)<3;return true});
- if(!pool.length)pool=WORDS.slice();shuffle(pool);seenSession=0;
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active')}
+function poolFor(cat){
+ if(cat==='all') return WORDS.slice();
+ if(cat==='OT / ICS') return WORDS.filter(w=>w.cat==='OT / ICS'||OT_EXTRA.has(w.en));
+ return WORDS.filter(w=>w.cat===cat);
 }
-function distractorsFor(w){const others=WORDS.filter(x=>x.he!==w.he);shuffle(others);return others.slice(0,3).map(x=>x.he)}
-function speak(){if(!current)return;if(window.Android&&typeof Android.speak==='function'){Android.speak(current.en);return;}if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(current.en);u.lang='en-US';u.rate=.82;speechSynthesis.speak(u)}
-function nextWord(){
- locked=false;$('feedback').textContent='';if(!pool.length)buildPool();current=pool.pop();seenSession++;
- $('word').textContent=current.en;$('counter').textContent=`מילה ${seenSession} מתוך ${Math.max(seenSession+pool.length,1)} · ${WORDS.length} מילים במאגר`;
- $('bar').style.width=(seenSession/Math.max(seenSession+pool.length,1)*100)+'%';$('hard').textContent=state.hard[norm(current.en)]?'⭐ מילה קשה':'☆ סמן כקשה';
- const opts=shuffle([current.he,...distractorsFor(current)]),box=$('answers');box.innerHTML='';
- opts.forEach((txt,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=`${i+1}. ${txt}`;b.dataset.val=txt;b.onclick=()=>choose(b);box.appendChild(b)});
- if($('autoSpeak').checked)setTimeout(speak,180);updateStats();
+function categoryCount(cat){return poolFor(cat).length}
+function renderCategories(){
+ $('categories').innerHTML='';
+ CATEGORIES.forEach((c,i)=>{
+   const b=document.createElement('button');b.className='cat'+(i===0?' all':'');
+   b.innerHTML=`<span>${c.name}</span><small>${c.desc} · ${categoryCount(c.id)} מילים</small>`;
+   b.onclick=()=>startExam(c.id);
+   $('categories').appendChild(b);
+ });
 }
-function choose(btn){
- if(locked)return;locked=true;const k=norm(current.en),ok=btn.dataset.val===current.he,buttons=[...document.querySelectorAll('.answer')];
- if(ok){btn.classList.add('good');state.correct[k]=(state.correct[k]||0)+1;state.totalCorrect++;state.streak++;$('feedback').textContent='✅ נכון!'}
- else{btn.classList.add('bad');state.wrong[k]=(state.wrong[k]||0)+1;state.totalWrong++;state.streak=0;buttons.find(b=>b.dataset.val===current.he)?.classList.add('good');$('feedback').textContent=`❌ התשובה הנכונה: ${current.he}`}
- buttons.forEach(b=>{if(!b.classList.contains('good')&&!b.classList.contains('bad'))b.classList.add('dim')});save();updateStats();
+function chooseTen(cat){
+ let pool=poolFor(cat);
+ let used=state.used[cat]||[];
+ let available=pool.filter(w=>!used.includes(key(w)));
+ if(available.length<10){used=[];available=pool.slice()}
+ const chosen=shuffle(available).slice(0,Math.min(10,available.length));
+ state.used[cat]=used.concat(chosen.map(key));
+ state.examNo[cat]=(state.examNo[cat]||0)+1;
+ save(); return chosen;
 }
-function updateStats(){$('score').textContent=state.totalCorrect;$('wrong').textContent=state.totalWrong;$('streak').textContent=state.streak;$('mastered').textContent=Object.values(state.correct).filter(n=>n>=3).length}
-$('next').onclick=nextWord;$('speak').onclick=speak;
-$('hard').onclick=()=>{if(!current)return;const k=norm(current.en);state.hard[k]=!state.hard[k];save();$('hard').textContent=state.hard[k]?'⭐ מילה קשה':'☆ סמן כקשה'};
-$('mode').onchange=()=>{buildPool();nextWord()};
-$('autoSpeak').onchange=()=>localStorage.setItem('cyber_auto_speak',$('autoSpeak').checked?'1':'0');$('autoSpeak').checked=localStorage.getItem('cyber_auto_speak')==='1';
-function renderList(q=''){q=q.trim().toLowerCase();const arr=WORDS.filter(w=>!q||w.en.toLowerCase().includes(q)||w.he.includes(q));$('list').innerHTML=arr.map(w=>`<div class="list-item"><div class="he">${w.he}</div><div class="en">${w.en}</div></div>`).join('')}
-$('showList').onclick=()=>{$('modal').classList.add('open');renderList()};$('close').onclick=()=>$('modal').classList.remove('open');$('modal').onclick=e=>{if(e.target===$('modal'))$('modal').classList.remove('open')};$('search').oninput=e=>renderList(e.target.value);
-buildPool();nextWord();
+function startExam(cat){
+ currentCategory=cat;exam=chooseTen(cat);qi=0;correct=0;review=[];locked=false;
+ $('quizTitle').textContent=(CATEGORIES.find(c=>c.id===cat)?.name||cat)+' · מבחן '+state.examNo[cat];
+ show('quiz');renderQuestion();
+}
+function distractors(w){
+ let same=poolFor(currentCategory).filter(x=>x.he!==w.he);
+ if(same.length<3) same=WORDS.filter(x=>x.he!==w.he);
+ return shuffle(same).slice(0,3).map(x=>x.he);
+}
+function renderQuestion(){
+ locked=false;$('feedback').className='feedback';$('feedback').textContent='בחר תשובה';
+ const w=exam[qi];
+ $('word').textContent=w.en;
+ $('progressText').textContent=`${qi+1} / ${exam.length}`;
+ $('bar').style.width=((qi)/exam.length*100)+'%';
+ $('hard').textContent=state.hard[key(w)]?'★ קשה':'☆ קשה';
+ const opts=shuffle([w.he,...distractors(w)]);
+ const box=$('answers');box.innerHTML='';
+ opts.forEach((txt,i)=>{
+   const b=document.createElement('button');b.className='answer';b.dataset.val=txt;b.textContent=`${i+1}. ${txt}`;
+   b.onclick=()=>answer(b);box.appendChild(b);
+ });
+}
+function toast(text,good){
+ const t=$('toast');t.textContent=text;t.className='toast show '+(good?'good':'bad');
+ setTimeout(()=>t.className='toast',720);
+}
+function answer(btn){
+ if(locked)return;locked=true;
+ const w=exam[qi], ok=btn.dataset.val===w.he;
+ const buttons=[...document.querySelectorAll('.answer')];
+ if(ok){correct++;btn.classList.add('correct');$('feedback').className='feedback good';$('feedback').textContent='✅ נכון';toast('✅ נכון',true)}
+ else{
+   btn.classList.add('wrong');
+   buttons.find(b=>b.dataset.val===w.he)?.classList.add('correct');
+   $('feedback').className='feedback bad';$('feedback').textContent='❌ שגוי · '+w.he;toast('❌ שגוי',false)
+ }
+ buttons.forEach(b=>{b.disabled=true;if(!b.classList.contains('correct')&&!b.classList.contains('wrong'))b.classList.add('dim')});
+ review.push({en:w.en,correct:ok,right:w.he,chosen:btn.dataset.val});
+ $('bar').style.width=((qi+1)/exam.length*100)+'%';
+ setTimeout(()=>{qi++; if(qi>=exam.length) finishExam(); else renderQuestion()},850);
+}
+function finishExam(){
+ show('result');
+ $('score').textContent=`${correct}/${exam.length}`;
+ $('resultSub').textContent=correct===exam.length?'מצוין! 100%':correct>=8?'מעולה — ממשיכים לתרגל':correct>=6?'טוב — עוד סיבוב יחזק את המילים':'כדאי לעשות עוד מבחן בקטגוריה הזאת';
+ const wrong=review.filter(r=>!r.correct);
+ $('review').innerHTML=wrong.length?wrong.map(r=>`<div class="review-item">❌ <b>${r.en}</b> — ${r.right}<br><span style="color:#aeb1ca">בחרת: ${r.chosen}</span></div>`).join(''):'<div class="review-item">✅ אין טעויות במבחן הזה.</div>';
+}
+function speak(){
+ const w=exam[qi]; if(!w)return;
+ if(window.Android&&Android.speak) Android.speak(w.en);
+ else if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(w.en);u.lang='en-US';u.rate=.82;speechSynthesis.speak(u)}
+}
+$('speak').onclick=speak;
+$('hard').onclick=()=>{const w=exam[qi];if(!w)return;state.hard[key(w)]=!state.hard[key(w)];save();$('hard').textContent=state.hard[key(w)]?'★ קשה':'☆ קשה'};
+$('exitQuiz').onclick=()=>show('home');
+$('backHome').onclick=()=>show('home');
+$('nextExam').onclick=()=>startExam(currentCategory);
+
+function fit(){
+ const h=window.visualViewport?window.visualViewport.height:window.innerHeight;
+ const w=window.visualViewport?window.visualViewport.width:window.innerWidth;
+ document.documentElement.style.setProperty('--h',h+'px');
+ document.body.style.height=h+'px';
+ document.documentElement.dataset.short=h<720?'1':'0';
+ document.documentElement.dataset.narrow=w<360?'1':'0';
+}
+window.addEventListener('resize',fit);
+if(window.visualViewport)window.visualViewport.addEventListener('resize',fit);
+fit();renderCategories();
 </script>
-</body>
-</html>
+</body></html>
