@@ -1,5 +1,7 @@
-# Cyber Words Trainer
+# CISO Exam Trainer
 
-Android quiz app for practicing cybersecurity vocabulary in English → Hebrew.
+Android bilingual exam-practice app for CISM, CISSP, Mixed CISO, and OT/ICS topics.
 
-GitHub Actions builds a debug APK automatically after each push to `main`.
+This app lives on the `ciso-exam-trainer` branch.
+
+GitHub Actions automatically builds a debug APK after each push to this branch. The artifact name is `CISO-Exam-Trainer-APK`.
