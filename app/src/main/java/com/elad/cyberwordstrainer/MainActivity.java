@@ -1,164 +1,447 @@
-package com.elad.cyberwordstrainer;
+package com.elad.homeshopping;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.View;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import java.util.Locale;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends Activity {
-    private WebView webView;
-    private TextToSpeech tts;
+    private static final String PREFS = "home_shopping_prefs";
+    private static final String KEY_ITEMS = "items_json";
 
-    private static final String MOBILE_CSS =
-            "html,body{width:100%!important;height:100%!important;max-width:100%!important;overflow:hidden!important;}" +
-            "body{margin:0!important;min-height:100%!important;background:#0f1020!important;}" +
-            ".wrap{width:100%!important;height:100%!important;max-width:none!important;margin:0!important;padding:clamp(6px,1.2vh,12px) clamp(8px,2.2vw,16px) clamp(8px,1.4vh,14px)!important;display:flex!important;flex-direction:column!important;}" +
-            ".top{flex:0 0 auto!important;margin:0 0 clamp(6px,1vh,10px)!important;padding:0!important;min-height:clamp(36px,5.5vh,50px)!important;align-items:center!important;}" +
-            ".brand{font-size:clamp(17px,4.8vw,23px)!important;line-height:1.05!important;white-space:nowrap!important;}" +
-            ".badge{font-size:clamp(10px,2.8vw,13px)!important;padding:clamp(5px,.8vh,7px) clamp(8px,2vw,11px)!important;white-space:nowrap!important;}" +
-            ".panel{flex:1 1 auto!important;min-height:0!important;border-radius:clamp(14px,2.5vw,20px)!important;padding:clamp(9px,1.35vh,14px)!important;box-shadow:none!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;}" +
-            ".stats{flex:0 0 auto!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:clamp(4px,1.3vw,8px)!important;margin-bottom:clamp(6px,.9vh,10px)!important;}" +
-            ".stat{padding:clamp(5px,.9vh,8px) 2px!important;border-radius:clamp(10px,2vw,14px)!important;min-width:0!important;}" +
-            ".stat b{font-size:clamp(15px,4vw,19px)!important;line-height:1!important;}" +
-            ".stat span{font-size:clamp(8.5px,2.5vw,11px)!important;white-space:nowrap!important;}" +
-            ".counter{flex:0 0 auto!important;font-size:clamp(10px,3vw,13px)!important;line-height:1.15!important;}" +
-            ".progress{flex:0 0 auto!important;height:clamp(5px,.8vh,8px)!important;margin:clamp(5px,.8vh,8px) 0 clamp(8px,1.2vh,13px)!important;}" +
-            ".word-row{flex:0 0 auto!important;gap:clamp(7px,2vw,10px)!important;margin:clamp(3px,.6vh,6px) 0 clamp(8px,1.1vh,12px)!important;min-height:clamp(44px,7vh,62px)!important;}" +
-            ".word{font-size:clamp(24px,8.2vw,38px)!important;line-height:1.02!important;max-width:calc(100% - 56px)!important;}" +
-            ".icon-btn{width:clamp(38px,10vw,46px)!important;height:clamp(38px,10vw,46px)!important;border-radius:12px!important;font-size:clamp(17px,5vw,21px)!important;flex:0 0 auto!important;}" +
-            ".answers{flex:1 1 auto!important;min-height:0!important;display:grid!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:clamp(6px,1vh,10px)!important;}" +
-            ".answer{height:100%!important;min-height:0!important;padding:clamp(8px,1.3vh,13px) clamp(9px,2.2vw,13px)!important;border-radius:clamp(12px,2vw,16px)!important;font-size:clamp(14px,4vw,18px)!important;line-height:1.18!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;}" +
-            ".feedback{flex:0 0 auto!important;min-height:0!important;height:0!important;margin:0!important;overflow:visible!important;position:relative!important;z-index:20!important;font-size:clamp(13px,3.7vw,17px)!important;font-weight:800!important;text-align:center!important;}" +
-            ".feedback.show-feedback{height:auto!important;margin:clamp(4px,.7vh,7px) 0!important;padding:clamp(6px,.9vh,9px) 10px!important;border-radius:12px!important;background:#202546!important;}" +
-            ".feedback.correct-feedback{background:#173f2e!important;color:#c9ffe4!important;}" +
-            ".feedback.wrong-feedback{background:#4b2224!important;color:#ffd7d7!important;}" +
-            ".actions{flex:0 0 auto!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:clamp(5px,1.2vw,8px)!important;margin-top:clamp(7px,1vh,10px)!important;}" +
-            ".btn{min-width:0!important;padding:clamp(8px,1.2vh,12px) clamp(5px,1.3vw,9px)!important;border-radius:12px!important;font-size:clamp(12px,3.5vw,15px)!important;line-height:1.15!important;}" +
-            ".settings{flex:0 0 auto!important;grid-template-columns:1fr 1fr!important;gap:clamp(5px,1.2vw,8px)!important;margin-top:clamp(7px,1vh,10px)!important;}" +
-            "select,label.switch{padding:clamp(8px,1.1vh,11px) clamp(7px,1.7vw,10px)!important;border-radius:12px!important;font-size:clamp(11px,3.2vw,14px)!important;min-width:0!important;}" +
-            ".small{flex:0 0 auto!important;font-size:clamp(9px,2.6vw,11px)!important;line-height:1.25!important;margin-top:clamp(6px,.9vh,9px)!important;max-height:clamp(34px,5.3vh,54px)!important;overflow:hidden!important;}" +
-            ".sheet{width:100%!important;max-height:88%!important;border-radius:20px 20px 12px 12px!important;}" +
-            "@media(max-height:760px){.top{min-height:34px!important}.panel{padding:8px!important}.stat{padding:4px 2px!important}.progress{margin:4px 0 7px!important}.word-row{margin:2px 0 6px!important;min-height:38px!important}.word{font-size:clamp(22px,7.4vw,31px)!important}.answers{gap:5px!important}.answer{font-size:clamp(13px,3.7vw,16px)!important;padding:6px 9px!important}.actions{margin-top:5px!important}.settings{margin-top:5px!important}.small{display:none!important}}" +
-            "@media(max-width:360px){.brand{font-size:16px!important}.badge{font-size:9px!important}.stat span{font-size:8px!important}.btn{font-size:11px!important}.answer{font-size:13px!important}}";
+    private static final int STATUS_PENDING = 0;
+    private static final int STATUS_TAKEN = 1;
+    private static final int STATUS_MISSING = 2;
 
-    private static final String QUIZ_JS =
-            "(function(){" +
-            "if(window.__androidQuizEnhanced)return;window.__androidQuizEnhanced=true;" +
-            "function enhance(){" +
-            "if(typeof choose!=='function'||typeof nextWord!=='function')return;" +
-            "var oldChoose=choose;" +
-            "choose=function(btn){" +
-            "if(window.__autoMoving)return;" +
-            "oldChoose(btn);" +
-            "var fb=document.getElementById('feedback');" +
-            "if(fb){var t=fb.textContent||'';fb.classList.add('show-feedback');fb.classList.remove('correct-feedback','wrong-feedback');if(t.indexOf('✅')>=0)fb.classList.add('correct-feedback');else if(t.indexOf('❌')>=0)fb.classList.add('wrong-feedback');}" +
-            "window.__autoMoving=true;" +
-            "setTimeout(function(){if(fb){fb.classList.remove('show-feedback','correct-feedback','wrong-feedback');}window.__autoMoving=false;nextWord();},950);" +
-            "};" +
-            "var n=document.getElementById('next');if(n){n.style.display='none';}" +
-            "}" +
-            "enhance();setTimeout(enhance,250);" +
-            "})();";
+    private final List<Item> items = new ArrayList<>();
+    private LinearLayout listContainer;
+    private TextView summaryText;
+    private EditText addInput;
 
-    @SuppressLint("SetJavaScriptEnabled")
+    private final List<String> defaultItems = Arrays.asList(
+            "נייר טואלט",
+            "שקיות אוכל",
+            "סבון כלים",
+            "צלחות חד פעמי",
+            "ביסקוויטים מצות יהודה ואסם",
+            "ג׳ל כביסה ירוק",
+            "דברי חלב",
+            "טחינה",
+            "טונה",
+            "ירקות",
+            "טיטולים",
+            "מגבונים",
+            "מברשות שיניים",
+            "משחת שיניים",
+            "מלפפון חמוץ",
+            "זיתים",
+            "משטחים"
+    );
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        tts = new TextToSpeech(this, status -> {
-            if (status == TextToSpeech.SUCCESS) {
-                tts.setLanguage(Locale.US);
-                tts.setSpeechRate(0.82f);
+        Window w = getWindow();
+        w.setStatusBarColor(Color.rgb(20, 92, 58));
+        w.setNavigationBarColor(Color.rgb(245, 247, 245));
+        if (android.os.Build.VERSION.SDK_INT >= 26) {
+            w.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+        }
+
+        loadItems();
+        setContentView(buildUi());
+        renderItems();
+    }
+
+    private View buildUi() {
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        root.setPadding(dp(14), dp(14), dp(14), dp(10));
+        root.setBackgroundColor(Color.rgb(245, 247, 245));
+
+        TextView title = new TextView(this);
+        title.setText("קניות לבית");
+        title.setTextSize(30);
+        title.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        title.setTextColor(Color.rgb(20, 70, 45));
+        title.setGravity(Gravity.RIGHT);
+        root.addView(title, lpMatchWrap());
+
+        TextView subtitle = new TextView(this);
+        subtitle.setText("סמן מה לקחת, מה עדיין חסר ומה לא היה בסופר");
+        subtitle.setTextSize(15);
+        subtitle.setTextColor(Color.rgb(90, 100, 94));
+        subtitle.setGravity(Gravity.RIGHT);
+        LinearLayout.LayoutParams subLp = lpMatchWrap();
+        subLp.bottomMargin = dp(10);
+        root.addView(subtitle, subLp);
+
+        summaryText = new TextView(this);
+        summaryText.setTextSize(15);
+        summaryText.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        summaryText.setTextColor(Color.rgb(35, 70, 50));
+        summaryText.setGravity(Gravity.RIGHT);
+        summaryText.setPadding(dp(12), dp(10), dp(12), dp(10));
+        summaryText.setBackground(makeRounded(Color.WHITE, dp(16), Color.rgb(220, 228, 222)));
+        LinearLayout.LayoutParams sumLp = lpMatchWrap();
+        sumLp.bottomMargin = dp(10);
+        root.addView(summaryText, sumLp);
+
+        LinearLayout addRow = new LinearLayout(this);
+        addRow.setOrientation(LinearLayout.HORIZONTAL);
+        addRow.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        addRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        addInput = new EditText(this);
+        addInput.setHint("הוסף מוצר חדש...");
+        addInput.setTextSize(16);
+        addInput.setSingleLine(true);
+        addInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        addInput.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+        addInput.setPadding(dp(12), 0, dp(12), 0);
+        addInput.setBackground(makeRounded(Color.WHITE, dp(14), Color.rgb(205, 215, 208)));
+        LinearLayout.LayoutParams inputLp = new LinearLayout.LayoutParams(0, dp(48), 1f);
+        inputLp.leftMargin = dp(8);
+        addRow.addView(addInput, inputLp);
+
+        Button addBtn = new Button(this);
+        addBtn.setText("+ הוסף");
+        addBtn.setTextSize(15);
+        addBtn.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        addBtn.setTextColor(Color.WHITE);
+        addBtn.setAllCaps(false);
+        addBtn.setBackground(makeRounded(Color.rgb(27, 130, 78), dp(14), Color.TRANSPARENT));
+        addBtn.setOnClickListener(v -> addNewItem());
+        addRow.addView(addBtn, new LinearLayout.LayoutParams(dp(92), dp(48)));
+
+        LinearLayout.LayoutParams addRowLp = lpMatchWrap();
+        addRowLp.bottomMargin = dp(10);
+        root.addView(addRow, addRowLp);
+
+        ScrollView scroll = new ScrollView(this);
+        scroll.setFillViewport(true);
+        scroll.setClipToPadding(false);
+        scroll.setPadding(0, 0, 0, dp(4));
+
+        listContainer = new LinearLayout(this);
+        listContainer.setOrientation(LinearLayout.VERTICAL);
+        listContainer.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        scroll.addView(listContainer, new ScrollView.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        root.addView(scroll, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        LinearLayout bottom = new LinearLayout(this);
+        bottom.setOrientation(LinearLayout.HORIZONTAL);
+        bottom.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        bottom.setGravity(Gravity.CENTER);
+        bottom.setPadding(0, dp(8), 0, 0);
+
+        Button resetStatuses = smallActionButton("אפס סימונים");
+        resetStatuses.setOnClickListener(v -> confirmResetStatuses());
+        bottom.addView(resetStatuses, weightedButtonLp());
+
+        Button restoreDefaults = smallActionButton("שחזר רשימה מובנית");
+        restoreDefaults.setOnClickListener(v -> confirmRestoreDefaults());
+        LinearLayout.LayoutParams restoreLp = weightedButtonLp();
+        restoreLp.rightMargin = dp(8);
+        bottom.addView(restoreDefaults, restoreLp);
+
+        root.addView(bottom, lpMatchWrap());
+        return root;
+    }
+
+    private void renderItems() {
+        listContainer.removeAllViews();
+        for (int i = 0; i < items.size(); i++) {
+            final int index = i;
+            Item item = items.get(i);
+
+            LinearLayout card = new LinearLayout(this);
+            card.setOrientation(LinearLayout.VERTICAL);
+            card.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+            card.setPadding(dp(12), dp(10), dp(12), dp(10));
+            card.setBackground(makeRounded(statusBackground(item.status), dp(16), statusBorder(item.status)));
+
+            TextView name = new TextView(this);
+            name.setText(item.name);
+            name.setTextSize(19);
+            name.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+            name.setTextColor(Color.rgb(38, 45, 40));
+            name.setGravity(Gravity.RIGHT);
+            card.addView(name, lpMatchWrap());
+
+            TextView current = new TextView(this);
+            current.setText(statusLabel(item.status));
+            current.setTextSize(13);
+            current.setTextColor(statusTextColor(item.status));
+            current.setGravity(Gravity.RIGHT);
+            LinearLayout.LayoutParams curLp = lpMatchWrap();
+            curLp.bottomMargin = dp(7);
+            card.addView(current, curLp);
+
+            LinearLayout actions = new LinearLayout(this);
+            actions.setOrientation(LinearLayout.HORIZONTAL);
+            actions.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+            actions.setGravity(Gravity.CENTER_VERTICAL);
+
+            Button taken = statusButton("✓ לקחתי", item.status == STATUS_TAKEN);
+            taken.setOnClickListener(v -> setStatus(index, STATUS_TAKEN));
+            actions.addView(taken, weightedButtonLp());
+
+            Button pending = statusButton("○ לא לקחתי", item.status == STATUS_PENDING);
+            pending.setOnClickListener(v -> setStatus(index, STATUS_PENDING));
+            LinearLayout.LayoutParams pendingLp = weightedButtonLp();
+            pendingLp.rightMargin = dp(6);
+            actions.addView(pending, pendingLp);
+
+            Button missing = statusButton("✕ לא היה", item.status == STATUS_MISSING);
+            missing.setOnClickListener(v -> setStatus(index, STATUS_MISSING));
+            LinearLayout.LayoutParams missingLp = weightedButtonLp();
+            missingLp.rightMargin = dp(6);
+            actions.addView(missing, missingLp);
+
+            Button delete = new Button(this);
+            delete.setText("מחק");
+            delete.setTextSize(12);
+            delete.setTextColor(Color.rgb(145, 44, 44));
+            delete.setAllCaps(false);
+            delete.setPadding(dp(4), 0, dp(4), 0);
+            delete.setBackground(makeRounded(Color.rgb(255, 242, 242), dp(11), Color.rgb(235, 190, 190)));
+            delete.setOnClickListener(v -> confirmDelete(index));
+            LinearLayout.LayoutParams deleteLp = new LinearLayout.LayoutParams(dp(62), dp(42));
+            deleteLp.rightMargin = dp(6);
+            actions.addView(delete, deleteLp);
+
+            card.addView(actions, lpMatchWrap());
+
+            LinearLayout.LayoutParams cardLp = lpMatchWrap();
+            cardLp.bottomMargin = dp(8);
+            listContainer.addView(card, cardLp);
+        }
+        updateSummary();
+    }
+
+    private Button statusButton(String text, boolean selected) {
+        Button b = new Button(this);
+        b.setText(text);
+        b.setTextSize(12);
+        b.setAllCaps(false);
+        b.setSingleLine(true);
+        b.setPadding(dp(3), 0, dp(3), 0);
+        b.setTextColor(selected ? Color.WHITE : Color.rgb(55, 68, 60));
+        b.setBackground(makeRounded(
+                selected ? Color.rgb(29, 126, 75) : Color.rgb(249, 250, 249),
+                dp(11),
+                selected ? Color.rgb(29, 126, 75) : Color.rgb(205, 215, 208)));
+        return b;
+    }
+
+    private Button smallActionButton(String text) {
+        Button b = new Button(this);
+        b.setText(text);
+        b.setTextSize(13);
+        b.setAllCaps(false);
+        b.setTextColor(Color.rgb(50, 70, 57));
+        b.setBackground(makeRounded(Color.WHITE, dp(12), Color.rgb(205, 215, 208)));
+        return b;
+    }
+
+    private void addNewItem() {
+        String name = addInput.getText().toString().trim();
+        if (name.isEmpty()) {
+            Toast.makeText(this, "כתוב שם של מוצר", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        for (Item item : items) {
+            if (item.name.equalsIgnoreCase(name)) {
+                Toast.makeText(this, "המוצר כבר קיים ברשימה", Toast.LENGTH_SHORT).show();
+                return;
             }
-        });
+        }
+        items.add(0, new Item(name, STATUS_PENDING));
+        addInput.setText("");
+        saveItems();
+        renderItems();
+    }
 
-        webView = new WebView(this);
-        webView.setBackgroundColor(Color.rgb(15, 16, 32));
-        webView.setVerticalScrollBarEnabled(false);
-        webView.setHorizontalScrollBarEnabled(false);
-        webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+    private void setStatus(int index, int status) {
+        if (index < 0 || index >= items.size()) return;
+        items.get(index).status = status;
+        saveItems();
+        renderItems();
+    }
 
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setAllowFileAccess(true);
-        settings.setMediaPlaybackRequiresUserGesture(false);
-        settings.setSupportZoom(false);
-        settings.setBuiltInZoomControls(false);
-        settings.setDisplayZoomControls(false);
-        settings.setTextZoom(100);
-        settings.setUseWideViewPort(false);
-        settings.setLoadWithOverviewMode(false);
+    private void confirmDelete(int index) {
+        if (index < 0 || index >= items.size()) return;
+        String name = items.get(index).name;
+        new AlertDialog.Builder(this)
+                .setTitle("למחוק את המוצר?")
+                .setMessage(name)
+                .setPositiveButton("מחק", (d, w) -> {
+                    items.remove(index);
+                    saveItems();
+                    renderItems();
+                })
+                .setNegativeButton("ביטול", null)
+                .show();
+    }
 
-        webView.setOnApplyWindowInsetsListener((v, insets) -> {
-            int top = insets.getSystemWindowInsetTop();
-            int bottom = insets.getSystemWindowInsetBottom();
-            int left = insets.getSystemWindowInsetLeft();
-            int right = insets.getSystemWindowInsetRight();
-            v.setPadding(left, top, right, bottom);
-            return insets;
-        });
+    private void confirmResetStatuses() {
+        new AlertDialog.Builder(this)
+                .setTitle("איפוס סימונים")
+                .setMessage("כל המוצרים יחזרו למצב 'לא לקחתי'.")
+                .setPositiveButton("אפס", (d, w) -> {
+                    for (Item item : items) item.status = STATUS_PENDING;
+                    saveItems();
+                    renderItems();
+                })
+                .setNegativeButton("ביטול", null)
+                .show();
+    }
 
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                String js = "(function(){" +
-                        "var old=document.getElementById('android-responsive');if(old)old.remove();" +
-                        "var s=document.createElement('style');s.id='android-responsive';s.innerHTML=" + quoteJs(MOBILE_CSS) + ";document.head.appendChild(s);" +
-                        QUIZ_JS +
-                        "})();";
-                view.evaluateJavascript(js, null);
+    private void confirmRestoreDefaults() {
+        new AlertDialog.Builder(this)
+                .setTitle("שחזור הרשימה המובנית")
+                .setMessage("פעולה זו תחליף את הרשימה הנוכחית ברשימת ברירת המחדל.")
+                .setPositiveButton("שחזר", (d, w) -> {
+                    createDefaults();
+                    saveItems();
+                    renderItems();
+                })
+                .setNegativeButton("ביטול", null)
+                .show();
+    }
+
+    private void updateSummary() {
+        int taken = 0;
+        int missing = 0;
+        int pending = 0;
+        for (Item item : items) {
+            if (item.status == STATUS_TAKEN) taken++;
+            else if (item.status == STATUS_MISSING) missing++;
+            else pending++;
+        }
+        summaryText.setText("סה״כ " + items.size() + "  •  ✓ לקחתי " + taken + "  •  ○ נשאר " + pending + "  •  ✕ לא היה " + missing);
+    }
+
+    private void loadItems() {
+        String json = getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_ITEMS, null);
+        if (json == null || json.trim().isEmpty()) {
+            createDefaults();
+            saveItems();
+            return;
+        }
+        try {
+            JSONArray arr = new JSONArray(json);
+            items.clear();
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject o = arr.getJSONObject(i);
+                items.add(new Item(o.getString("name"), o.optInt("status", STATUS_PENDING)));
             }
-        });
-
-        webView.addJavascriptInterface(new AndroidBridge(), "Android");
-        webView.loadUrl("file:///android_asset/index.html");
-        setContentView(webView);
-    }
-
-    private static String quoteJs(String value) {
-        return "'" + value.replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n") + "'";
-    }
-
-    private class AndroidBridge {
-        @JavascriptInterface
-        public void speak(String text) {
-            runOnUiThread(() -> {
-                if (tts != null) {
-                    tts.stop();
-                    tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "cyber-word");
-                }
-            });
+        } catch (Exception e) {
+            createDefaults();
+            saveItems();
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        if (webView != null && webView.canGoBack()) {
-            webView.goBack();
-        } else {
-            super.onBackPressed();
+    private void saveItems() {
+        JSONArray arr = new JSONArray();
+        try {
+            for (Item item : items) {
+                JSONObject o = new JSONObject();
+                o.put("name", item.name);
+                o.put("status", item.status);
+                arr.put(o);
+            }
+            getSharedPreferences(PREFS, MODE_PRIVATE)
+                    .edit()
+                    .putString(KEY_ITEMS, arr.toString())
+                    .apply();
+        } catch (Exception ignored) {
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        if (tts != null) {
-            tts.stop();
-            tts.shutdown();
+    private void createDefaults() {
+        items.clear();
+        for (String s : defaultItems) items.add(new Item(s, STATUS_PENDING));
+    }
+
+    private String statusLabel(int status) {
+        if (status == STATUS_TAKEN) return "✓ נלקח";
+        if (status == STATUS_MISSING) return "✕ לא היה בסופר";
+        return "○ עדיין לא לקחתי";
+    }
+
+    private int statusBackground(int status) {
+        if (status == STATUS_TAKEN) return Color.rgb(230, 248, 237);
+        if (status == STATUS_MISSING) return Color.rgb(255, 239, 239);
+        return Color.WHITE;
+    }
+
+    private int statusBorder(int status) {
+        if (status == STATUS_TAKEN) return Color.rgb(151, 214, 173);
+        if (status == STATUS_MISSING) return Color.rgb(236, 173, 173);
+        return Color.rgb(220, 228, 222);
+    }
+
+    private int statusTextColor(int status) {
+        if (status == STATUS_TAKEN) return Color.rgb(28, 120, 70);
+        if (status == STATUS_MISSING) return Color.rgb(170, 58, 58);
+        return Color.rgb(110, 117, 112);
+    }
+
+    private android.graphics.drawable.Drawable makeRounded(int fill, int radius, int stroke) {
+        android.graphics.drawable.GradientDrawable d = new android.graphics.drawable.GradientDrawable();
+        d.setColor(fill);
+        d.setCornerRadius(radius);
+        if (stroke != Color.TRANSPARENT) d.setStroke(dp(1), stroke);
+        return d;
+    }
+
+    private LinearLayout.LayoutParams lpMatchWrap() {
+        return new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+    }
+
+    private LinearLayout.LayoutParams weightedButtonLp() {
+        return new LinearLayout.LayoutParams(0, dp(42), 1f);
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    private static class Item {
+        String name;
+        int status;
+
+        Item(String name, int status) {
+            this.name = name;
+            this.status = status;
         }
-        if (webView != null) {
-            webView.destroy();
-        }
-        super.onDestroy();
     }
 }
