@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.elad.cyberwordstrainer'
+    namespace 'com.elad.homeshopping'
     compileSdk 35
 
     defaultConfig {
-        applicationId 'com.elad.cyberwordstrainer'
+        applicationId 'com.elad.homeshopping'
         minSdk 26
         targetSdk 35
         versionCode 1
