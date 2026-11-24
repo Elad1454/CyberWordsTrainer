@@ -1,8 +1,8 @@
-name: Build Android APK
+name: Build CISM Keywords Trainer APK
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "cism-keywords-trainer" ]
   workflow_dispatch:
 
 jobs:
@@ -30,6 +30,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Cyber-Words-Trainer-APK
+          name: CISM-Keywords-Trainer-APK
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
